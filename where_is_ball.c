@@ -189,8 +189,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	/*初期状態の定義*/
-	MODE_FLG = restart;
-	int ball[3][3] = {{300, 300, red},
+	MODE_FLG = stop;
+	int ball[3][3] = {{300, 300, white},
 							{300, 900, white},
 							{300, 1500, white}};
 	int d[3] = {500, 500, 500};
@@ -214,17 +214,55 @@ int main(int argc, char *argv[])
 					touchx = event.button.x;
 					touchy = event.button.y;
 				}
-//				quit_flg = 0;
-//				break;
+				break;
+				case SDL_QUIT:
+				quit_flg = 0;
+				break;
 			}
         }
 	
 	/*レンダラーで背景描画*/
 	SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
-			
 	/*ボールを設置して■で隠すまで*/
-	if (MODE_FLG == restart)
+	if (MODE_FLG == stop)
+	{
+		if (refuse == 1)
+		{
+			ball[0][2] = white;
+			ball[1][2] = white;
+			ball[2][2] = white;
+			n = rand() % 9;
+			touchx = n / 3;
+			touchy = n % 3 + 1;
+			ball[touchx][2] = touchy;
+			d[0] = 500;
+			d[1] = 500;
+			d[2] = 500;
+			count = 500;
+			n = 0;
+			touchx = -1;
+			touchy = -1;
+			test = 4;
+			refuse = 0;
+		}
+		else if (refuse == 0)
+		{
+			if (touchx > 0)
+			{
+				refuse = 1;
+				touchx = -1;
+				touchy = -1;
+				MODE_FLG = restart;
+			}
+		}
+		init_func(renderer, ball, d, 1);
+	
+		SDL_RenderPresent(renderer);
+		SDL_Delay(10);
+	}
+	/*ボールを設置して■で隠すまで*/
+	else if (MODE_FLG == restart)
 	{	
 		init_func(renderer, ball, d, 1);
 		d[0] -= 10;
@@ -289,6 +327,12 @@ int main(int argc, char *argv[])
 //				quit_flg = 0;
 				refuse = 0;
 				test = 4;
+			}
+			if ((d[0] + d[1] + d[2]) > 1495)
+			{
+				MODE_FLG = stop;
+				refuse = 1;
+				SDL_Delay(1000);
 			}
 		}
 		SDL_Delay(10);
